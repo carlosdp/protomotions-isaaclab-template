@@ -40,7 +40,68 @@ UV fetches ProtoMotions from the configured Git branch with LFS enabled, so the
 installed wheel contains materialized runtime robot assets rather than Git LFS
 pointer files. No local ProtoMotions checkout is required.
 
-## Validate and run
+## Included downstream experiment
+
+`experiments/smpl_amass_mlp.py` is a project-owned MLP mimic experiment for an
+SMPL humanoid trained on packaged AMASS motions. It follows the environment,
+reward, evaluator, actor, and critic behavior of ProtoMotions'
+`examples/experiments/mimic/mlp.py`, but imports only the installed
+`protomotions` package. It does not depend on a ProtoMotions checkout or copy
+any package modules into this repository.
+
+Prepare AMASS as a ProtoMotions MotionLib `.pt` file using the upstream
+[AMASS data preparation guide](https://protomotions.github.io/getting_started/amass_preparation.html).
+Keep the resulting data outside this repository and pass an absolute path.
+
+After reviewing and accepting the Isaac Sim EULA as described below, run the
+upstream-scale four-GPU training configuration with Isaac Lab:
+
+```bash
+uv run protomotions train \
+  --robot-name smpl \
+  --simulator isaaclab \
+  --experiment-path experiments/smpl_amass_mlp.py \
+  --experiment-name smpl_amass_isaaclab_mlp \
+  --motion-file /absolute/path/to/amass_train.pt \
+  --num-envs 8192 \
+  --batch-size 8192 \
+  --ngpu 4 \
+  --headless true
+```
+
+Results and resolved configurations are written to
+`results/smpl_amass_isaaclab_mlp/`. Reduce `--num-envs`, `--batch-size`, and
+`--ngpu` together for smaller hosts. For example, a single-GPU functional
+smoke run can start with `--num-envs 64 --batch-size 64 --ngpu 1`, but those
+values are not intended for production training.
+
+After accepting the EULA yourself and supplying a valid MotionLib file, use a
+bounded one-step startup smoke test before committing a large allocation:
+
+```bash
+timeout 180s uv run protomotions train \
+  --robot-name smpl \
+  --simulator isaaclab \
+  --experiment-path experiments/smpl_amass_mlp.py \
+  --experiment-name smpl_amass_isaaclab_smoke \
+  --motion-file /absolute/path/to/amass_train.pt \
+  --num-envs 64 \
+  --batch-size 64 \
+  --ngpu 1 \
+  --headless true \
+  --training-max-steps 1
+```
+
+The external timeout bounds simulator startup as well as the first training
+step. Remove it and choose production-scale values only after this smoke test
+reaches the training loop successfully.
+
+To build and inspect the complete downstream configuration without starting
+training, add `--create-config-only` to the command. ProtoMotions still imports
+Isaac Lab before Torch for this path, but it exits before constructing the
+simulation application.
+
+## Validate the installation
 
 The following checks do not initialize Isaac Sim:
 
@@ -52,12 +113,10 @@ uv run python -c "import protomotions; print(protomotions.__version__)"
 uv pip check
 ```
 
-Pass your own experiment, motion, checkpoint, and output paths when running
-training or evaluation. For example:
+Confirm that the downstream experiment is syntax-valid:
 
 ```bash
-uv run protomotions train --help
-uv run protomotions eval --help
+uv run python -m py_compile experiments/smpl_amass_mlp.py
 ```
 
 The first Isaac Sim import or launch downloads extensions and can take several

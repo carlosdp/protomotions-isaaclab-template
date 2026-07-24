@@ -1924,7 +1924,7 @@ wheels = [
 [[package]]
 name = "protomotions"
 version = "3.1.0"
-source = { git = "https://github.com/carlosdp/ProtoMotions.git?lfs=true&branch=codex%2Fprotomotions-pypi-uv-packaging#7f96b9fd7af1f253efdc923396346a7374cdbe77" }
+source = { git = "https://github.com/carlosdp/ProtoMotions.git?lfs=true&branch=codex%2Fprotomotions-pypi-uv-packaging#25775747153f4af1394e9a47e3557242a167269e" }
 dependencies = [
     { name = "dm-control" },
     { name = "easydict" },
