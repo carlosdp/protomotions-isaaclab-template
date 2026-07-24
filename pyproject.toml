@@ -1,0 +1,32 @@
+[project]
+name = "protomotions-isaaclab-template"
+version = "0.1.0"
+description = "A downstream UV workspace for ProtoMotions with Isaac Lab"
+requires-python = "==3.11.*"
+dependencies = [
+  "protomotions[isaaclab]",
+  "torch==2.7.0",
+  "torchvision==0.22.0",
+]
+
+[tool.uv]
+package = false
+required-version = ">=0.11.32"
+environments = [
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+index-strategy = "first-index"
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[[tool.uv.index]]
+name = "nvidia"
+url = "https://pypi.nvidia.com"
+
+[tool.uv.sources]
+protomotions = { git = "https://github.com/carlosdp/ProtoMotions.git", branch = "codex/protomotions-pypi-uv-packaging", lfs = true }
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
