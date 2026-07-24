@@ -16,7 +16,9 @@ The workspace currently resolves:
 ## Prerequisites
 
 - Linux x86_64 with glibc 2.35 or newer
-- An NVIDIA GPU and a driver compatible with the Isaac Sim 5.1 requirements
+- An RTX-capable NVIDIA GPU, a driver compatible with the
+  [Isaac Sim 5.1 requirements](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/requirements.html),
+  and working Vulkan support
 - Python 3.11
 - [UV](https://docs.astral.sh/uv/getting-started/installation/) 0.11.32 or
   newer (Git-source LFS support is required)
@@ -26,6 +28,59 @@ The workspace currently resolves:
 
 This lock is intentionally scoped to Linux x86_64. Use separate projects and
 locks for ProtoMotions' other simulator stacks.
+
+### Fully headless containers still require Vulkan
+
+`--headless true` disables windows, viewports, and per-step rendering. Isaac
+Sim still initializes Omniverse Kit's GPU foundation through Vulkan, including
+for physics-only training. A successful `nvidia-smi` or CUDA program does not
+prove that the host can run Isaac Lab.
+
+When creating an NVIDIA container, request the NVIDIA Container Toolkit's
+[`graphics` driver capability](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html#driver-capabilities)
+in addition to `compute` and `utility`. The `display` capability is not
+required for this fully headless workflow:
+
+```bash
+docker run --gpus all \
+  -e NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics \
+  IMAGE
+```
+
+For Vast.ai, put the following in the instance template's
+[Docker create options](https://docs.vast.ai/guides/instances/docker-environment#docker-create-options)
+before launching the instance:
+
+```text
+-e NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
+```
+
+The NVIDIA runtime consumes this value while creating the container. Exporting
+`NVIDIA_DRIVER_CAPABILITIES=all` later inside an already-running container
+does not retroactively inject missing driver libraries or devices.
+
+Minimal Ubuntu images also need the Vulkan loader and common graphics runtime
+libraries used by Isaac Sim:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+  libgl1 libglu1-mesa libvulkan1 libx11-6 libxext6 libxt6 \
+  libxi6 libxrandr2 libxcursor1 libxinerama1 vulkan-tools
+```
+
+Run the included read-only preflight before syncing the multi-gigabyte Python
+environment:
+
+```bash
+python3 scripts/check_isaaclab_host.py
+vulkaninfo --summary
+```
+
+Both checks must create a Vulkan instance and identify the intended NVIDIA RTX
+GPU. If either reports `ERROR_INCOMPATIBLE_DRIVER`, use a compatible host
+driver or recreate the container with the graphics capability before
+continuing.
 
 ## Set up
 
@@ -43,7 +98,7 @@ pointer files. No local ProtoMotions checkout is required.
 ## Included downstream experiment
 
 `experiments/smpl_amass_mlp.py` is a project-owned MLP mimic experiment for an
-SMPL humanoid trained on packaged AMASS motions. It follows the environment,
+SMPL humanoid trained on prepared AMASS motions. It follows the environment,
 reward, evaluator, actor, and critic behavior of ProtoMotions'
 `examples/experiments/mimic/mlp.py`, but imports only the installed
 `protomotions` package. It does not depend on a ProtoMotions checkout or copy
@@ -120,7 +175,8 @@ uv run python -m py_compile experiments/smpl_amass_mlp.py
 ```
 
 The first Isaac Sim import or launch downloads extensions and can take several
-minutes. GPU/display and headless-launch details depend on the host.
+minutes. Headless launch does not remove the Vulkan requirement described
+above.
 
 ## Isaac Sim EULA
 
