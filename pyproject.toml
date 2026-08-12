@@ -27,6 +27,6 @@ name = "nvidia"
 url = "https://pypi.nvidia.com"
 
 [tool.uv.sources]
-protomotions = { git = "https://github.com/carlosdp/ProtoMotions.git", branch = "codex/protomotions-pypi-uv-packaging", lfs = true }
+protomotions = { git = "https://github.com/NVlabs/ProtoMotions.git", branch = "main", lfs = true }
 torch = { index = "pytorch-cu128" }
 torchvision = { index = "pytorch-cu128" }

@@ -2,13 +2,13 @@
 
 This repository is a ready-to-use downstream [UV](https://docs.astral.sh/uv/)
 workspace for running
-[ProtoMotions](https://github.com/carlosdp/ProtoMotions/tree/codex/protomotions-pypi-uv-packaging)
+[ProtoMotions](https://github.com/NVlabs/ProtoMotions/tree/main)
 with Isaac Lab. It keeps the simulator in its own environment and records the
 non-default indexes required by the NVIDIA and CUDA package stacks.
 
 The workspace currently resolves:
 
-- ProtoMotions 3.1 from the packaging branch
+- ProtoMotions 3.1 from the upstream main branch
 - Isaac Lab 2.3.2.post1
 - Isaac Sim 5.1.0.0
 - PyTorch 2.7.0 and torchvision 0.22.0 from the CUDA 12.8 wheel index
