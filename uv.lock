@@ -1924,7 +1924,7 @@ wheels = [
 [[package]]
 name = "protomotions"
 version = "3.1.0"
-source = { git = "https://github.com/carlosdp/ProtoMotions.git?lfs=true&branch=codex%2Fprotomotions-pypi-uv-packaging#25775747153f4af1394e9a47e3557242a167269e" }
+source = { git = "https://github.com/NVlabs/ProtoMotions.git?lfs=true&branch=main#5241478e35a7dcf5d1455dac2df0486d5e7f440a" }
 dependencies = [
     { name = "dm-control" },
     { name = "easydict" },
@@ -1973,7 +1973,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "protomotions", extras = ["isaaclab"], git = "https://github.com/carlosdp/ProtoMotions.git?lfs=true&branch=codex%2Fprotomotions-pypi-uv-packaging" },
+    { name = "protomotions", extras = ["isaaclab"], git = "https://github.com/NVlabs/ProtoMotions.git?lfs=true&branch=main" },
     { name = "torch", specifier = "==2.7.0", index = "https://download.pytorch.org/whl/cu128" },
     { name = "torchvision", specifier = "==0.22.0", index = "https://download.pytorch.org/whl/cu128" },
 ]
